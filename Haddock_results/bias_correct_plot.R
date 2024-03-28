@@ -1,4 +1,4 @@
-bias_correct_plot <- function(res, var, base.line = TRUE, relative = FALSE, dpi = 72) {
+bias_correct_plot <- function(res, var, base.line = TRUE, relative = FALSE, dpi = 100) {
   require(ggplot2)
   require(dplyr)
   res <- na.omit(res)
@@ -13,7 +13,7 @@ bias_correct_plot <- function(res, var, base.line = TRUE, relative = FALSE, dpi 
   p <- ggplot(res, aes(x = EM, y = !! rlang::sym(var))) + 
     geom_boxplot() +
     facet_wrap(~ OM, ncol = 4,
-               # scales = "free_y", 
+               scales = "free_y", 
                labeller = labeller(OM = c("1" = "Rec (iid)\npe1_oe1",
                                           "2" = "Rec (iid)\npe0_oe1",
                                           "3" = "Rec (iid)\npe1_oe0",
@@ -61,5 +61,5 @@ bias_correct_plot <- function(res, var, base.line = TRUE, relative = FALSE, dpi 
     p + labs(y = "Estimated Value") 
   }
   
-  ggsave(paste0(var,".PNG"),width = 10,height = 10, dpi = 72)
+  ggsave(paste0(var,".PNG"),width = 10,height = 10, dpi = dpi)
 }
