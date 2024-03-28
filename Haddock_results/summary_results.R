@@ -1,4 +1,4 @@
-setwd("E:/GBK")
+setwd("E:/Haddock/")
 # generating OM with pe and oe on and off (should have 4 different mods)
 bias_correct_process     <- c(1,0)
 bias_correct_observation <- c(1,0)
@@ -25,12 +25,11 @@ df.mods2 <- expand.grid(bias_correct_process = bias_correct_process,
 df.mods <- rbind(df.mods1,df.mods2)
 
 str <- df.mods[1:4,1:2]
-
 df = readRDS("dat.RDS")
 res = NULL
 for (om in 1:24) {
   num = df[[om]]$ID 
-  files_names <- paste0("GBK_full/OM",om,"/OM",om,"nsim",num,".RDS")
+  files_names <- paste0("OM",om,"nsim",num,".RDS")
   mods_list <- sapply(files_names, try(readRDS), simplify = FALSE)
   em = as.numeric(rownames(str[om %% 4,])) # true model is j
   if (length(em) == 0) em = 4
@@ -41,7 +40,7 @@ for (om in 1:24) {
     mean_naa <- sapply(1:4,function(j) {
       mod.tmp <- mods_list[[i]][[j]]
       if(length(mod.tmp) != 0){
-        sapply(1:6, function(a) {     
+        sapply(1:9, function(a) {     
           mean.NAA <- mean(mod.tmp$rep$NAA[-1,a]/exp(mod.tmp$input$data$log_NAA[,a]))
         })
       } else {
@@ -81,7 +80,7 @@ for (om in 1:24) {
     mean_Index <- sapply(1:4,function(j) {
       mod.tmp <- mods_list[[i]][[j]]
       if(length(mod.tmp) != 0){
-        sapply(1:3, function(a) {     
+        sapply(1:2, function(a) {     
           mean.Index <- mean(mod.tmp$rep$pred_indices[,a]/mod.tmp$input$data$agg_indices[,a])
         })
       } else {
@@ -92,7 +91,7 @@ for (om in 1:24) {
     mean_q <- sapply(1:4,function(j) {
       mod.tmp <- mods_list[[i]][[j]]
       if(length(mod.tmp) != 0){
-        sapply(1:3, function(a) {     
+        sapply(1:2, function(a) {     
           mean.q <- mean(mod.tmp$rep$q[,a]/mod.tmp$input$data$q[,a])
         })
       } else {
@@ -130,7 +129,7 @@ for (om in 1:24) {
         tmp2 <- exp(as.list(mod.tmp$sdrep,"Est")$index_paa_pars[,1])
         selfwt_par <- c(tmp1,tmp2)
       } else {
-        selfwt_par <- matrix(NA,4,1)
+        selfwt_par <- matrix(NA,3,1)
       }
     })
     
@@ -166,9 +165,9 @@ for (om in 1:24) {
   }
 }
 
-names(res)[1:26] <- c(paste0("Age_",1:6),"NAA","Catch", "Fmax", paste0("Index_",1:3),paste0("Catchability_",1:3),
-                      "Rec_sigma","NAA_sigma","Rho_a","Rho_y",paste0("selfwt_par",1:4),"Convergence","AIC","dAIC")
-write.csv(res,"res1.csv",row.names = F)
+names(res)[1:26] <- c(paste0("Age_",1:9),"NAA","Catch", "Fmax", paste0("Index_",1:2),paste0("Catchability_",1:2),
+                      "Rec_sigma","NAA_sigma","Rho_a","Rho_y",paste0("selfwt_par",1:3),"Convergence","AIC","dAIC")
+write.csv(res,"res2.csv",row.names = F)
 
 # res <- NULL
 # for (om in 1:24) {
@@ -304,23 +303,23 @@ source("bias_correct_plot.R")
 
 names = names(res)[1:26]
 
-for (i in 1:15){
+for (i in 1:16){
   var = names[i]
   bias_correct_plot(res,var,base.line = TRUE, relative = FALSE)
 }
 
-for (i in 1:15){
+for (i in 1:16){
   var = names[i]
   bias_correct_plot(res,var,base.line = TRUE, relative = TRUE)
 }
 
-for (i in 16:26){
+for (i in 17:26){
   var = names[i]
   bias_correct_plot(res,var,base.line = FALSE)
 }
 
 # -----------------------------------------------------------------------------
-setwd("E:/GBK")
+setwd("E:/Haddock/")
 # generating OM with pe and oe on and off (should have 4 different mods)
 bias_correct_process     <- c(1,0)
 bias_correct_observation <- c(1,0)
@@ -352,7 +351,7 @@ df = readRDS("dat.RDS")
 res = NULL
 for (om in 1:24) {
   num = df[[om]]$ID 
-  files_names <- paste0("GBK_full/OM",om,"/OM",om,"nsim",num,".RDS")
+  files_names <- paste0("OM",om,"nsim",num,".RDS")
   mods_list <- sapply(files_names, try(readRDS), simplify = FALSE)
   
   # mod.tmp <- mods_list[[i]][[j]]
@@ -365,7 +364,7 @@ for (om in 1:24) {
   Catch_df <- data.frame(Catch) %>% 
     mutate(Year = seq_len(nrow(.))) %>%
     pivot_longer(cols = -Year,names_to = "nsim",values_to = "Catch")
-    
+  
   Catch_df$OM = om
   res = rbind(res,Catch_df)
 }
@@ -402,3 +401,4 @@ ggplot(res,aes(x = Year, y = Catch, group = nsim)) +
                                         "24" = "Rec+1 (2dar1)\npe0_oe0"))) + 
   labs(title = "50 simulated catch") + theme_bw()
 ggsave("Simulated_catch.PNG",width = 10,height = 10, dpi = 100)
+
